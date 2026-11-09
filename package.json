@@ -1,0 +1,45 @@
+{
+  "name": "@nextcloud/calendar",
+  "version": "0.0.1",
+  "description": "",
+  "homepage": "https://github.com/nextcloud-libraries/nextcloud-calendar#readme",
+  "bugs": {
+    "url": "https://github.com/nextcloud-libraries/nextcloud-calendar/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nextcloud-libraries/nextcloud-calendar.git"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": "Nextcloud GmbH and Nextcloud contributors",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "main": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "browserslist": [
+    "extends @nextcloud/browserslist-config"
+  ],
+  "devDependencies": {
+    "@nextcloud/browserslist-config": "^3.1.2",
+    "@nextcloud/eslint-config": "^9.0.1",
+    "@nextcloud/vite-config": "^2.5.4",
+    "vite": "^7.3.8",
+    "vitest": "^5.1.0"
+  }
+}
