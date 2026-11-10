@@ -9,7 +9,7 @@ import type { IEventEditorEvent } from './event.ts'
 /**
  * Identifies an event editor extension.
  */
-export interface IEventEditorExtensionId {
+export interface EventEditorExtensionId {
 	/** Id of the Nextcloud app providing the extension */
 	app: string
 	/** Name of the extension, unique within the app */
@@ -29,7 +29,7 @@ export interface IEventEditorExtensionContext {
 /**
  * Extension of the event editor.
  */
-export interface IEventEditorExtension extends IEventEditorExtensionId {
+export interface EventEditorExtension extends EventEditorExtensionId {
 	/**
 	 * Set up the extension in an event editor.
 	 *

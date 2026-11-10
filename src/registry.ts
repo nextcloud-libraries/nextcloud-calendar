@@ -18,6 +18,16 @@ export type ExtensionRegistryEvents = EventEditorExtensionRegistryEvents
 export type ExtensionRegistry = EventTarget
 
 /**
+ * Subscription of a callback to registry events.
+ */
+export interface RegistrySubscription {
+	/**
+	 * Stop calling the callback. Calling it more than once does nothing.
+	 */
+	unsubscribe(): void
+}
+
+/**
  * Get the extension registry shared by all copies of this library on the page.
  *
  * @return The shared extension registry
@@ -34,7 +44,10 @@ export function getRegistry(): ExtensionRegistry {
  * @param type - The name of the event
  * @param detail - The detail of the event
  */
-export function dispatchRegistryEvent<T extends keyof ExtensionRegistryEvents>(type: T, detail: ExtensionRegistryEvents[T]['detail']): void {
+export function dispatchRegistryEvent<T extends keyof ExtensionRegistryEvents>(
+	type: T,
+	detail: ExtensionRegistryEvents[T]['detail'],
+): void {
 	getRegistry().dispatchEvent(new CustomEvent(type, { detail }))
 }
 
@@ -43,11 +56,17 @@ export function dispatchRegistryEvent<T extends keyof ExtensionRegistryEvents>(t
  *
  * @param type - The name of the event
  * @param callback - Called with the detail of the event
- * @return A function that removes the callback again
+ * @return The subscription of the callback
  */
-export function addRegistryListener<T extends keyof ExtensionRegistryEvents>(type: T, callback: (detail: ExtensionRegistryEvents[T]['detail']) => void): () => void {
-	const listener = (event: Event) => callback((event as ExtensionRegistryEvents[T]).detail)
+export function addRegistryListener<T extends keyof ExtensionRegistryEvents>(
+	type: T,
+	callback: (detail: ExtensionRegistryEvents[T]['detail']) => void,
+): RegistrySubscription {
+	const listener = (event: Event) =>
+		callback((event as ExtensionRegistryEvents[T]).detail)
 	const registry = getRegistry()
 	registry.addEventListener(type, listener)
-	return () => registry.removeEventListener(type, listener)
+	return {
+		unsubscribe: () => registry.removeEventListener(type, listener),
+	}
 }

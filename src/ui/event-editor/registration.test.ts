@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import type { IEventEditorExtension, IEventEditorExtensionId } from './extension.ts'
+import type { EventEditorExtension } from './extension.ts'
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getScopedGlobals } from '../../globalScope.ts'
@@ -12,10 +12,9 @@ import {
 	onEventEditorExtensionRegistered,
 	onEventEditorExtensionUnregistered,
 	registerEventEditorExtension,
-	unregisterEventEditorExtension,
 } from './registration.ts'
 
-function createExtension(name: string, app = 'test'): IEventEditorExtension {
+function createExtension(name: string, app = 'test'): EventEditorExtension {
 	return {
 		app,
 		name,
@@ -30,7 +29,7 @@ describe('event editor extensions', () => {
 
 	describe('getEventEditorExtensions', () => {
 		it('returns an empty list when nothing is registered', () => {
-			expect(getEventEditorExtensions()).toEqual([])
+			expect(getEventEditorExtensions().extensions).toEqual([])
 		})
 
 		it('returns registered extensions in registration order', () => {
@@ -41,15 +40,19 @@ describe('event editor extensions', () => {
 			registerEventEditorExtension(second)
 			registerEventEditorExtension(third)
 
-			expect(getEventEditorExtensions()).toEqual([first, second, third])
+			expect(getEventEditorExtensions().extensions).toEqual([
+				first,
+				second,
+				third,
+			])
 		})
 
 		it('returns a copy that does not affect the registry when modified', () => {
 			registerEventEditorExtension(createExtension('ext'))
 
-			getEventEditorExtensions().pop()
+			getEventEditorExtensions().extensions.pop()
 
-			expect(getEventEditorExtensions()).toHaveLength(1)
+			expect(getEventEditorExtensions().extensions).toHaveLength(1)
 		})
 	})
 
@@ -58,17 +61,22 @@ describe('event editor extensions', () => {
 			const extension = createExtension('ext')
 			registerEventEditorExtension(extension)
 
-			expect(globalThis._nc_calendar_scope?.v0_0?.eventEditorExtension).toBeInstanceOf(Map)
-			expect(getScopedGlobals().eventEditorExtension?.get('["test","ext"]')).toBe(extension)
+			expect(
+				globalThis._nc_calendar_scope?.v0_0?.eventEditorExtension,
+			).toBeInstanceOf(Map)
+			expect(
+				getScopedGlobals().eventEditorExtension?.get('["test","ext"]'),
+			).toBe(extension)
 		})
 
 		it('throws when an extension with the same app and name is already registered', () => {
 			const original = createExtension('ext')
 			registerEventEditorExtension(original)
 
-			expect(() => registerEventEditorExtension(createExtension('ext')))
-				.toThrow('Extension `ext` of app `test` already registered.')
-			expect(getEventEditorExtensions()).toEqual([original])
+			expect(() =>
+				registerEventEditorExtension(createExtension('ext')),
+			).toThrow('Extension `ext` of app `test` already registered.')
+			expect(getEventEditorExtensions().extensions).toEqual([original])
 		})
 
 		it('allows the same name in different apps', () => {
@@ -77,7 +85,7 @@ describe('event editor extensions', () => {
 			registerEventEditorExtension(first)
 			registerEventEditorExtension(second)
 
-			expect(getEventEditorExtensions()).toEqual([first, second])
+			expect(getEventEditorExtensions().extensions).toEqual([first, second])
 		})
 
 		it('keeps ids apart that only differ in where a separator-like character is', () => {
@@ -88,12 +96,16 @@ describe('event editor extensions', () => {
 			registerEventEditorExtension(second)
 			registerEventEditorExtension(third)
 
-			expect(getEventEditorExtensions()).toEqual([first, second, third])
+			expect(getEventEditorExtensions().extensions).toEqual([
+				first,
+				second,
+				third,
+			])
 		})
 
 		it('notifies registered callbacks with the extension', () => {
 			const callback = vi.fn()
-			onEventEditorExtensionRegistered(callback)
+			onEventEditorExtensionRegistered({ callback })
 			const extension = createExtension('ext')
 
 			registerEventEditorExtension(extension)
@@ -104,129 +116,181 @@ describe('event editor extensions', () => {
 		it('does not notify registered callbacks for a duplicate', () => {
 			registerEventEditorExtension(createExtension('ext'))
 			const callback = vi.fn()
-			onEventEditorExtensionRegistered(callback)
+			onEventEditorExtensionRegistered({ callback })
 
-			expect(() => registerEventEditorExtension(createExtension('ext'))).toThrow()
+			expect(() =>
+				registerEventEditorExtension(createExtension('ext')),
+			).toThrow()
 			expect(callback).not.toHaveBeenCalled()
 		})
 
 		it.each([
-			['a missing app', { name: 'ext', setup: () => {} }, 'Extension `app` must be a non-empty string.'],
-			['an empty app', { app: '', name: 'ext', setup: () => {} }, 'Extension `app` must be a non-empty string.'],
-			['a non-string app', { app: 1, name: 'ext', setup: () => {} }, 'Extension `app` must be a non-empty string.'],
-			['a missing name', { app: 'test', setup: () => {} }, 'Extension `name` must be a non-empty string.'],
-			['an empty name', { app: 'test', name: '', setup: () => {} }, 'Extension `name` must be a non-empty string.'],
-			['a missing setup', { app: 'test', name: 'ext' }, 'Extension `setup` must be a function.'],
-			['a non-function setup', { app: 'test', name: 'ext', setup: 'setup' }, 'Extension `setup` must be a function.'],
+			[
+				'a missing app',
+				{ name: 'ext', setup: () => {} },
+				'Extension `app` must be a non-empty string.',
+			],
+			[
+				'an empty app',
+				{ app: '', name: 'ext', setup: () => {} },
+				'Extension `app` must be a non-empty string.',
+			],
+			[
+				'a non-string app',
+				{ app: 1, name: 'ext', setup: () => {} },
+				'Extension `app` must be a non-empty string.',
+			],
+			[
+				'a missing name',
+				{ app: 'test', setup: () => {} },
+				'Extension `name` must be a non-empty string.',
+			],
+			[
+				'an empty name',
+				{ app: 'test', name: '', setup: () => {} },
+				'Extension `name` must be a non-empty string.',
+			],
+			[
+				'a missing setup',
+				{ app: 'test', name: 'ext' },
+				'Extension `setup` must be a function.',
+			],
+			[
+				'a non-function setup',
+				{ app: 'test', name: 'ext', setup: 'setup' },
+				'Extension `setup` must be a function.',
+			],
 			['undefined', undefined, 'Extension must be an object.'],
 			['null', null, 'Extension must be an object.'],
 			['a string', 'test:ext', 'Extension must be an object.'],
-		])('throws for %s without registering or notifying', (_, extension, message) => {
-			const callback = vi.fn()
-			onEventEditorExtensionRegistered(callback)
+		])(
+			'throws for %s without registering or notifying',
+			(_, extension, message) => {
+				const callback = vi.fn()
+				onEventEditorExtensionRegistered({ callback })
 
-			expect(() => registerEventEditorExtension(extension as unknown as IEventEditorExtension))
-				.toThrow(new TypeError(message))
-			expect(getEventEditorExtensions()).toEqual([])
-			expect(callback).not.toHaveBeenCalled()
-		})
+				expect(() =>
+					registerEventEditorExtension(
+						extension as unknown as EventEditorExtension,
+					),
+				).toThrow(new TypeError(message))
+				expect(getEventEditorExtensions().extensions).toEqual([])
+				expect(callback).not.toHaveBeenCalled()
+			},
+		)
 	})
 
-	describe('unregisterEventEditorExtension', () => {
-		it.each([
-			['a missing app', { name: 'ext' }, 'Extension `app` must be a non-empty string.'],
-			['an empty app', { app: '', name: 'ext' }, 'Extension `app` must be a non-empty string.'],
-			['a missing name', { app: 'test' }, 'Extension `name` must be a non-empty string.'],
-			['an empty name', { app: 'test', name: '' }, 'Extension `name` must be a non-empty string.'],
-			['undefined', undefined, 'Extension id must be an object.'],
-			['null', null, 'Extension id must be an object.'],
-		])('throws for %s without unregistering or notifying', (_, id, message) => {
-			const registered = createExtension('ext')
-			registerEventEditorExtension(registered)
-			const callback = vi.fn()
-			onEventEditorExtensionUnregistered(callback)
-
-			expect(() => unregisterEventEditorExtension(id as IEventEditorExtensionId))
-				.toThrow(new TypeError(message))
-			expect(getEventEditorExtensions()).toEqual([registered])
-			expect(callback).not.toHaveBeenCalled()
-		})
-
-		it('removes a registered extension', () => {
+	describe('unregister of the registration returned by registerEventEditorExtension', () => {
+		it('removes only its own extension', () => {
 			const kept = createExtension('kept')
 			registerEventEditorExtension(kept)
-			registerEventEditorExtension(createExtension('removed'))
+			const { unregister } = registerEventEditorExtension(
+				createExtension('removed'),
+			)
 
-			unregisterEventEditorExtension({ app: 'test', name: 'removed' })
+			unregister()
 
-			expect(getEventEditorExtensions()).toEqual([kept])
+			expect(getEventEditorExtensions().extensions).toEqual([kept])
 		})
 
-		it('only removes the extension of the given app', () => {
+		it('does not remove an extension of another app with the same name', () => {
 			const kept = createExtension('ext', 'kept')
 			registerEventEditorExtension(kept)
-			registerEventEditorExtension(createExtension('ext', 'removed'))
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext', 'removed'),
+			)
 
-			unregisterEventEditorExtension({ app: 'removed', name: 'ext' })
+			unregister()
 
-			expect(getEventEditorExtensions()).toEqual([kept])
-		})
-
-		it('allows registering the same app and name again after unregistering', () => {
-			registerEventEditorExtension(createExtension('ext'))
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
-
-			const replacement = createExtension('ext')
-			expect(() => registerEventEditorExtension(replacement)).not.toThrow()
-			expect(getEventEditorExtensions()).toEqual([replacement])
-		})
-
-		it('does not throw for an unknown extension', () => {
-			const unknown = { app: 'test', name: 'unknown' }
-			expect(() => unregisterEventEditorExtension(unknown)).not.toThrow()
-			registerEventEditorExtension(createExtension('ext'))
-			expect(() => unregisterEventEditorExtension(unknown)).not.toThrow()
-			expect(getEventEditorExtensions()).toHaveLength(1)
-		})
-
-		it('notifies unregistered callbacks with the app and name', () => {
-			registerEventEditorExtension(createExtension('ext'))
-			const callback = vi.fn()
-			onEventEditorExtensionUnregistered(callback)
-
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
-
-			expect(callback).toHaveBeenCalledExactlyOnceWith({ app: 'test', name: 'ext' })
+			expect(getEventEditorExtensions().extensions).toEqual([kept])
 		})
 
 		it('does not remove an extension whose app and name only join to the same string', () => {
 			const kept = createExtension('b:c', 'a')
 			registerEventEditorExtension(kept)
-			registerEventEditorExtension(createExtension('c', 'a:b'))
+			const { unregister } = registerEventEditorExtension(
+				createExtension('c', 'a:b'),
+			)
 
-			unregisterEventEditorExtension({ app: 'a:b', name: 'c' })
+			unregister()
 
-			expect(getEventEditorExtensions()).toEqual([kept])
+			expect(getEventEditorExtensions().extensions).toEqual([kept])
 		})
 
-		it('does not notify unregistered callbacks for an unknown extension', () => {
-			const callback = vi.fn()
-			onEventEditorExtensionUnregistered(callback)
+		it('allows registering the same app and name again', () => {
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext'),
+			)
+			unregister()
 
-			unregisterEventEditorExtension({ app: 'test', name: 'unknown' })
-			registerEventEditorExtension(createExtension('ext'))
-			unregisterEventEditorExtension({ app: 'test', name: 'unknown' })
-
-			expect(callback).not.toHaveBeenCalled()
+			const replacement = createExtension('ext')
+			expect(() => registerEventEditorExtension(replacement)).not.toThrow()
+			expect(getEventEditorExtensions().extensions).toEqual([replacement])
 		})
 
-		it('notifies unregistered callbacks only once when unregistering twice', () => {
-			registerEventEditorExtension(createExtension('ext'))
-			const callback = vi.fn()
-			onEventEditorExtensionUnregistered(callback)
+		it('does not remove a later registration with the same app and name', () => {
+			const extension = createExtension('ext')
+			const { unregister } = registerEventEditorExtension(extension)
+			unregister()
+			const replacement = createExtension('ext')
+			registerEventEditorExtension(replacement)
 
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
+			unregister()
+
+			expect(getEventEditorExtensions().extensions).toEqual([replacement])
+		})
+
+		it('does not remove the same extension object registered again', () => {
+			const extension = createExtension('ext')
+			const { unregister } = registerEventEditorExtension(extension)
+			unregister()
+			registerEventEditorExtension(extension)
+
+			unregister()
+
+			expect(getEventEditorExtensions().extensions).toEqual([extension])
+		})
+
+		it('notifies unregistered callbacks with the app and name', () => {
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext'),
+			)
+			const callback = vi.fn()
+			onEventEditorExtensionUnregistered({ callback })
+
+			unregister()
+
+			expect(callback).toHaveBeenCalledExactlyOnceWith({
+				app: 'test',
+				name: 'ext',
+			})
+		})
+
+		it('notifies with the id the extension was registered with, even if it was mutated', () => {
+			const extension = createExtension('ext')
+			const { unregister } = registerEventEditorExtension(extension)
+			const callback = vi.fn()
+			onEventEditorExtensionUnregistered({ callback })
+			extension.name = 'mutated'
+
+			unregister()
+
+			expect(getEventEditorExtensions().extensions).toEqual([])
+			expect(callback).toHaveBeenCalledExactlyOnceWith({
+				app: 'test',
+				name: 'ext',
+			})
+		})
+
+		it('notifies unregistered callbacks only once when called twice', () => {
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext'),
+			)
+			const callback = vi.fn()
+			onEventEditorExtensionUnregistered({ callback })
+
+			unregister()
+			unregister()
 
 			expect(callback).toHaveBeenCalledOnce()
 		})
@@ -235,20 +299,22 @@ describe('event editor extensions', () => {
 	describe('onEventEditorExtensionRegistered', () => {
 		it('stops notifying after the returned function is called', () => {
 			const callback = vi.fn()
-			const off = onEventEditorExtensionRegistered(callback)
+			const { unsubscribe } = onEventEditorExtensionRegistered({ callback })
 
-			off()
+			unsubscribe()
 			registerEventEditorExtension(createExtension('ext'))
 
 			expect(callback).not.toHaveBeenCalled()
 		})
 
 		it('is not called on unregister', () => {
-			registerEventEditorExtension(createExtension('ext'))
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext'),
+			)
 			const callback = vi.fn()
-			onEventEditorExtensionRegistered(callback)
+			onEventEditorExtensionRegistered({ callback })
 
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
+			unregister()
 
 			expect(callback).not.toHaveBeenCalled()
 		})
@@ -256,19 +322,21 @@ describe('event editor extensions', () => {
 
 	describe('onEventEditorExtensionUnregistered', () => {
 		it('stops notifying after the returned function is called', () => {
-			registerEventEditorExtension(createExtension('ext'))
+			const { unregister } = registerEventEditorExtension(
+				createExtension('ext'),
+			)
 			const callback = vi.fn()
-			const off = onEventEditorExtensionUnregistered(callback)
+			const { unsubscribe } = onEventEditorExtensionUnregistered({ callback })
 
-			off()
-			unregisterEventEditorExtension({ app: 'test', name: 'ext' })
+			unsubscribe()
+			unregister()
 
 			expect(callback).not.toHaveBeenCalled()
 		})
 
 		it('is not called on register', () => {
 			const callback = vi.fn()
-			onEventEditorExtensionUnregistered(callback)
+			onEventEditorExtensionUnregistered({ callback })
 
 			registerEventEditorExtension(createExtension('ext'))
 

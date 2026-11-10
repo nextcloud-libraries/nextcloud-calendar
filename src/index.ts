@@ -4,12 +4,26 @@
  */
 
 export type {
+	EventEditorEventProperty,
+	EventEditorEventSaveScope,
+	EventEditorEventSaveSubscriptionOptions,
+	EventEditorExtension,
+	EventEditorExtensionId,
+	EventEditorExtensionRegisteredSubscription,
+	EventEditorExtensionRegisteredSubscriptionOptions,
+	EventEditorExtensionRegistration,
+	EventEditorExtensionUnregisteredSubscription,
+	EventEditorExtensionUnregisteredSubscriptionOptions,
+	EventEditorFieldOptions,
+	GetEventEditorExtensionsOptions,
+	GetEventEditorExtensionsResult,
 	IEventEditor,
 	IEventEditorEvent,
 	IEventEditorEventSaveDetails,
-	IEventEditorExtension,
+	IEventEditorEventSaveSubscription,
+	IEventEditorEventSetPropertyResult,
 	IEventEditorExtensionContext,
-	IEventEditorExtensionId,
+	IEventEditorField,
 } from './ui/event-editor/index.ts'
 
 export {
@@ -17,5 +31,4 @@ export {
 	onEventEditorExtensionRegistered,
 	onEventEditorExtensionUnregistered,
 	registerEventEditorExtension,
-	unregisterEventEditorExtension,
 } from './ui/event-editor/index.ts'

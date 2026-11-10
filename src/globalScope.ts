@@ -4,7 +4,7 @@
  */
 
 import type { ExtensionRegistry } from './registry.ts'
-import type { IEventEditorExtension } from './ui/event-editor/extension.ts'
+import type { EventEditorExtension } from './ui/event-editor/extension.ts'
 import type { EventEditorExtensionKey } from './ui/event-editor/registration.ts'
 
 declare global {
@@ -14,7 +14,7 @@ declare global {
 
 interface GlobalScope {
 	extensionRegistry?: ExtensionRegistry
-	eventEditorExtension?: Map<EventEditorExtensionKey, IEventEditorExtension>
+	eventEditorExtension?: Map<EventEditorExtensionKey, EventEditorExtension>
 }
 
 /**
