@@ -1,7 +1,13 @@
 {
   "name": "@nextcloud/calendar",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.1-0",
+  "description": "Extension API of the Nextcloud Calendar app",
+  "keywords": [
+    "nextcloud",
+    "calendar",
+    "extension",
+    "library"
+  ],
   "homepage": "https://github.com/nextcloud-libraries/nextcloud-calendar#readme",
   "bugs": {
     "url": "https://github.com/nextcloud-libraries/nextcloud-calendar/issues"
@@ -27,19 +33,44 @@
   ],
   "scripts": {
     "build": "vite build",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint && prettier --check .",
+    "lint:fix": "eslint --fix && prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "ts:check": "tsc --noEmit"
   },
   "browserslist": [
     "extends @nextcloud/browserslist-config"
   ],
+  "prettier": "@nextcloud/prettier-config",
   "devDependencies": {
+    "@eslint/markdown": "^8.0.3",
     "@nextcloud/browserslist-config": "^3.1.2",
     "@nextcloud/eslint-config": "^9.0.1",
+    "@nextcloud/prettier-config": "^1.2.0",
     "@nextcloud/vite-config": "^2.5.4",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.9.10",
+    "typescript": "^6.0.3",
     "vite": "^7.3.8",
     "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": "^24.0.0 || >=26.0.0"
+  },
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "npm",
+        "version": "^11.3.0"
+      }
+    ],
+    "runtime": {
+      "name": "node",
+      "version": "^24.0.0"
+    }
   }
 }
