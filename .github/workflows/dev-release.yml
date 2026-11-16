@@ -1,0 +1,107 @@
+# SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+# Publishes a GitHub pre-release `v<version>-dev.<short sha>` with the packed
+# library attached, so that development PRs in other repositories can depend on
+# an unreleased state of this library, e.g.:
+#
+#   "@nextcloud/calendar": "https://github.com/nextcloud-libraries/nextcloud-calendar/releases/download/v0.0.1-dev.abc1234/nextcloud-calendar-0.0.1-dev.abc1234.tgz"
+
+name: Dev release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or commit SHA to build
+        required: true
+        default: main
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dev-release-${{ inputs.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    name: Build and publish dev release
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Read package.json node and npm engines version
+        uses: nextcloud-libraries/parse-package-engines-action@39fcc545a815c353dd0a3fd8fd2ef6e59fd02b92 # v0.2.0
+        id: versions
+
+      - name: Set up node ${{ steps.versions.outputs.node-version }}
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ steps.versions.outputs.node-version }}
+
+      - name: Set up npm ${{ steps.versions.outputs.package-manager-version }}
+        run: npm i -g 'npm@${{ steps.versions.outputs.package-manager-version }}'
+
+      - name: Compute dev version
+        id: meta
+        run: |
+          sha="$(git rev-parse HEAD)"
+          short_sha="$(git rev-parse --short=7 HEAD)"
+          # Drop any existing pre-release/build suffix: 1.2.3-dev.1 -> 1.2.3
+          base_version="$(node -p "require('./package.json').version.split(/[-+]/)[0]")"
+          version="${base_version}-dev.${short_sha}"
+          echo "sha=${sha}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies & build
+        run: |
+          npm ci
+          npm run build
+
+      - name: Pack
+        id: pack
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          tarball="$(npm pack --json | node -e "process.stdout.write(JSON.parse(require('fs').readFileSync(0, 'utf8'))[0].filename)")"
+          echo "tarball=${tarball}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub pre-release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          REF: ${{ inputs.ref }}
+          SHA: ${{ steps.meta.outputs.sha }}
+          TAG: ${{ steps.meta.outputs.tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: |
+          if gh api "repos/${GH_REPO}/git/ref/tags/${TAG}" > /dev/null 2>&1; then
+            echo "::error::Tag $TAG already exists"
+            exit 1
+          fi
+          gh release create "$TAG" "$TARBALL" \
+            --target "$SHA" \
+            --title "$TAG" \
+            --prerelease \
+            --latest=false \
+            --notes "Development build of \`${REF}\` (${SHA}). Not for production use."
+          url="https://github.com/${GH_REPO}/releases/download/${TAG}/${TARBALL}"
+          {
+            echo "### Dev release \`${TAG}\`"
+            echo
+            echo '```json'
+            echo "\"@nextcloud/calendar\": \"${url}\""
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
