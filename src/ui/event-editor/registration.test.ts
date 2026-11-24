@@ -24,7 +24,7 @@ function createExtension(name: string, app = 'test'): EventEditorExtension {
 
 describe('event editor extensions', () => {
 	beforeEach(() => {
-		delete globalThis._nc_calendar_scope
+		delete globalThis._nc_calendar_integration_scope
 	})
 
 	describe('getEventEditorExtensions', () => {
@@ -62,7 +62,8 @@ describe('event editor extensions', () => {
 			registerEventEditorExtension(extension)
 
 			expect(
-				globalThis._nc_calendar_scope?.v0_0?.eventEditorExtension,
+				globalThis._nc_calendar_integration_scope?.v0_0
+					?.eventEditorExtension,
 			).toBeInstanceOf(Map)
 			expect(
 				getScopedGlobals().eventEditorExtension?.get('["test","ext"]'),

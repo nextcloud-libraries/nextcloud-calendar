@@ -1,20 +1,21 @@
 {
-  "name": "@nextcloud/calendar",
+  "name": "@nextcloud/calendar-integration",
   "version": "0.0.1-dev.1",
-  "description": "Extension API of the Nextcloud Calendar app",
+  "description": "Integration API for the Nextcloud Calendar app",
   "keywords": [
     "nextcloud",
     "calendar",
+    "integration",
     "extension",
     "library"
   ],
-  "homepage": "https://github.com/nextcloud-libraries/nextcloud-calendar#readme",
+  "homepage": "https://github.com/nextcloud-libraries/nextcloud-calendar-integration#readme",
   "bugs": {
-    "url": "https://github.com/nextcloud-libraries/nextcloud-calendar/issues"
+    "url": "https://github.com/nextcloud-libraries/nextcloud-calendar-integration/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nextcloud-libraries/nextcloud-calendar.git"
+    "url": "git+https://github.com/nextcloud-libraries/nextcloud-calendar-integration.git"
   },
   "license": "AGPL-3.0-or-later",
   "author": "Nextcloud GmbH and Nextcloud contributors",

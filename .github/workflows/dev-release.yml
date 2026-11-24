@@ -5,7 +5,7 @@
 # library attached, so that development PRs in other repositories can depend on
 # an unreleased state of this library, e.g.:
 #
-#   "@nextcloud/calendar": "https://github.com/nextcloud-libraries/nextcloud-calendar/releases/download/v0.0.1-dev.abc1234/nextcloud-calendar-0.0.1-dev.abc1234.tgz"
+#   "@nextcloud/calendar-integration": "https://github.com/nextcloud-libraries/nextcloud-calendar-integration/releases/download/v0.0.1-dev.abc1234/nextcloud-calendar-integration-0.0.1-dev.abc1234.tgz"
 
 name: Dev release
 
@@ -102,6 +102,6 @@ jobs:
             echo "### Dev release \`${TAG}\`"
             echo
             echo '```json'
-            echo "\"@nextcloud/calendar\": \"${url}\""
+            echo "\"@nextcloud/calendar-integration\": \"${url}\""
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"

@@ -3,10 +3,9 @@
   - SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# @nextcloud/calendar
+# @nextcloud/calendar-integration
 
-Extension API of the [Nextcloud Calendar](https://github.com/nextcloud/calendar) app.
-Other Nextcloud apps use it to extend the calendar, starting with the event editor.
+Integration API for the [Nextcloud Calendar](https://github.com/nextcloud/calendar) app.
 
 > [!WARNING]
 > The first version of this library is still in development.
@@ -15,10 +14,10 @@ Other Nextcloud apps use it to extend the calendar, starting with the event edit
 ## Installation
 
 ```sh
-npm install @nextcloud/calendar
+npm install @nextcloud/calendar-integration
 ```
 
-## Examples
+## Usage
 
 ### Extending the event editor
 
@@ -58,7 +57,7 @@ In that script, register the extension:
 
 ```ts
 // src/event-editor.ts
-import { registerEventEditorExtension } from '@nextcloud/calendar'
+import { registerEventEditorExtension } from '@nextcloud/calendar-integration'
 
 const registration = registerEventEditorExtension({
 	app: 'myapp',
