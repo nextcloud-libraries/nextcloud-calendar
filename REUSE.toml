@@ -1,9 +1,9 @@
 # SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
 # SPDX-License-Identifier: AGPL-3.0-or-later
 version = 1
-SPDX-PackageName = "nextcloud-calendar"
+SPDX-PackageName = "nextcloud-calendar-integration"
 SPDX-PackageSupplier = "Nextcloud <info@nextcloud.com>"
-SPDX-PackageDownloadLocation = "https://github.com/nextcloud-libraries/nextcloud-calendar"
+SPDX-PackageDownloadLocation = "https://github.com/nextcloud-libraries/nextcloud-calendar-integration"
 
 [[annotations]]
 path = ["package-lock.json", "package.json"]

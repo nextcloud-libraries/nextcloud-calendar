@@ -3,19 +3,19 @@
  * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 
-import type { RegistryEvents as EventEditorRegistryEvents } from './ui/event-editor/registration.ts'
+import type { IntegrationRegistryEvents as EventEditorRegistryEvents } from './ui/event-editor/registration.ts'
 
 import { getScopedGlobals } from './globalScope.ts'
 
 /**
- * Registry events by event name.
+ * Integration registry events by event name.
  */
-export type ExtensionRegistryEvents = EventEditorRegistryEvents
+export type IntegrationRegistryEvents = EventEditorRegistryEvents
 
 /**
  * Event target of the registry events.
  */
-export type ExtensionRegistry = EventTarget
+export type IntegrationRegistry = EventTarget
 
 /**
  * Subscription of a callback to registry events.
@@ -28,14 +28,14 @@ export interface RegistrySubscription {
 }
 
 /**
- * Get the extension registry shared by all copies of this library on the page.
+ * Get the integration registry shared by all copies of this library on the page.
  *
- * @return The shared extension registry
+ * @return The shared integration registry
  */
-export function getRegistry(): ExtensionRegistry {
+function getRegistry(): IntegrationRegistry {
 	const scopedGlobals = getScopedGlobals()
-	scopedGlobals.extensionRegistry ??= new EventTarget()
-	return scopedGlobals.extensionRegistry
+	scopedGlobals.integrationRegistry ??= new EventTarget()
+	return scopedGlobals.integrationRegistry
 }
 
 /**
@@ -44,9 +44,9 @@ export function getRegistry(): ExtensionRegistry {
  * @param type - The name of the event
  * @param detail - The detail of the event
  */
-export function dispatchRegistryEvent<T extends keyof ExtensionRegistryEvents>(
+export function dispatchRegistryEvent<T extends keyof IntegrationRegistryEvents>(
 	type: T,
-	detail: ExtensionRegistryEvents[T]['detail'],
+	detail: IntegrationRegistryEvents[T]['detail'],
 ): void {
 	getRegistry().dispatchEvent(new CustomEvent(type, { detail }))
 }
@@ -58,12 +58,12 @@ export function dispatchRegistryEvent<T extends keyof ExtensionRegistryEvents>(
  * @param callback - Called with the detail of the event
  * @return The subscription of the callback
  */
-export function addRegistryListener<T extends keyof ExtensionRegistryEvents>(
+export function addRegistryListener<T extends keyof IntegrationRegistryEvents>(
 	type: T,
-	callback: (detail: ExtensionRegistryEvents[T]['detail']) => void,
+	callback: (detail: IntegrationRegistryEvents[T]['detail']) => void,
 ): RegistrySubscription {
 	const listener = (event: Event) =>
-		callback((event as ExtensionRegistryEvents[T]).detail)
+		callback((event as IntegrationRegistryEvents[T]).detail)
 	const registry = getRegistry()
 	registry.addEventListener(type, listener)
 	return {

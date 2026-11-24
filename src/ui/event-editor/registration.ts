@@ -70,9 +70,9 @@ export interface OnExtensionUnregisteredResult {
 }
 
 /**
- * Registry events of event editor extensions, by event name.
+ * Integration registry events of event editor extensions, by event name.
  */
-export interface RegistryEvents {
+export interface IntegrationRegistryEvents {
 	'register:eventEditorExtension': RegisterEvent
 	'unregister:eventEditorExtension': UnregisterEvent
 }
