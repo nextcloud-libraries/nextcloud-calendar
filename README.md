@@ -81,6 +81,25 @@ const registration = registerEventEditorExtension({
 registration.unregister()
 ```
 
+For a plain text field, let the editor render it with `addTextField`,
+so it looks and behaves like the built-in text properties, e.g. the location:
+
+```ts
+setup({ event, editor }) {
+	const textField = editor.addTextField({
+		label: 'Room number',
+		value: '',
+	})
+
+	// Store the value in the event whenever the user changes it
+	textField.onChange({
+		callback: ({ value }) => {
+			event.setProperty({ name: 'X-MYAPP-ROOM', value })
+		},
+	})
+}
+```
+
 ## Features & Roadmap
 
 ### Implemented
@@ -89,6 +108,7 @@ registration.unregister()
 | ---------------------------------------- | ------------------------------ |
 | Register extensions for the event editor | `registerEventEditorExtension` |
 | Add own fields to the event editor       | `addCustomField`               |
+| Add text fields rendered by the editor   | `addTextField`                 |
 | Follow how the event editor is shown     | `view`, `onViewChange`         |
 | Know how the user may change the event   | `access`                       |
 | Update the event before it is saved      | `onSave`                       |
