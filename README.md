@@ -63,11 +63,11 @@ const registration = registerEventEditorExtension({
 	app: 'myapp',
 	name: 'my-field',
 	setup({ event, editor }) {
-		const field = document.createElement('div')
+		const element = document.createElement('div')
 		let value = ''
 		// … render your input into it, e.g. with a component of @nextcloud/vue, and keep `value` up to date
 
-		editor.addField({ field })
+		editor.addCustomField({ element })
 
 		event.onSave({
 			callback: () => {
@@ -88,7 +88,7 @@ registration.unregister()
 | Feature                                  | API                            |
 | ---------------------------------------- | ------------------------------ |
 | Register extensions for the event editor | `registerEventEditorExtension` |
-| Add own fields to the event editor       | `addField`                     |
+| Add own fields to the event editor       | `addCustomField`               |
 | Follow how the event editor is shown     | `view`, `onViewChange`         |
 | Know how the user may change the event   | `access`                       |
 | Update the event before it is saved      | `onSave`                       |
