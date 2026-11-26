@@ -26,8 +26,6 @@ export type EventEditorAccess = 'view' | 'respond' | 'full'
  * Options of {@link EventEditor.addField}: the field to add to the event editor.
  */
 export interface AddFieldOptions {
-	/** Icon shown in front of the field, like the icons of the other properties of the event. No icon is shown if omitted. */
-	icon?: Element
 	/** The field itself */
 	field: Element
 }

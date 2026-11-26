@@ -63,14 +63,11 @@ const registration = registerEventEditorExtension({
 	app: 'myapp',
 	name: 'my-field',
 	setup({ event, editor }) {
-		const icon = document.createElement('div')
-		// … e.g. render an icon into it
-
 		const field = document.createElement('div')
 		let value = ''
 		// … render your input into it, e.g. with a component of @nextcloud/vue, and keep `value` up to date
 
-		editor.addField({ icon, field })
+		editor.addField({ field })
 
 		event.onSave({
 			callback: () => {
