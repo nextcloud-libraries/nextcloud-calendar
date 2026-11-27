@@ -1,0 +1,15 @@
+# SPDX-FileCopyrightText: 2026 Nextcloud GmbH and Nextcloud contributors
+# SPDX-License-Identifier: CC0-1.0
+
+# Workflows synced from the organization template repository
+# (https://github.com/nextcloud-libraries/.github/tree/main/workflow-templates).
+# Keep them byte-identical to upstream so updates apply cleanly.
+.github/workflows/ai-policy.yml
+.github/workflows/block-unconventional-commits.yml
+.github/workflows/fixup.yml
+.github/workflows/lint-eslint.yml
+.github/workflows/lint-typescript.yml
+.github/workflows/node-test.yml
+.github/workflows/npm-build.yml
+.github/workflows/npm-publish.yml
+.github/workflows/reuse.yml
