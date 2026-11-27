@@ -1,6 +1,6 @@
 {
   "name": "@nextcloud/calendar-integration",
-  "version": "0.0.1-dev.1",
+  "version": "0.1.0-alpha.1",
   "description": "Integration API for the Nextcloud Calendar app",
   "keywords": [
     "nextcloud",
