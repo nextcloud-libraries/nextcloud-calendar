@@ -23,19 +23,17 @@ export type EventEditorView = 'preview' | 'simple' | 'full'
 export type EventEditorAccess = 'view' | 'respond' | 'full'
 
 /**
- * Options of {@link EventEditor.addField}: the field to add to the event editor.
+ * Options of {@link EventEditor.addCustomField}: the field to add to the event editor.
  */
-export interface AddFieldOptions {
-	/** Icon shown in front of the field, like the icons of the other properties of the event. No icon is shown if omitted. */
-	icon?: Element
-	/** The field itself */
-	field: Element
+export interface AddCustomFieldOptions {
+	/** The element rendering the field */
+	element: Element
 }
 
 /**
- * Result of {@link EventEditor.addField}: the field added to the event editor.
+ * Result of {@link EventEditor.addCustomField}: the field added to the event editor.
  */
-export interface AddFieldResult {
+export interface AddCustomFieldResult {
 	/**
 	 * Remove the field from the editor.
 	 * Does nothing if it was already removed.
@@ -86,12 +84,12 @@ export interface EventEditor {
 	readonly access: EventEditorAccess
 
 	/**
-	 * Add a field to the editor.
+	 * Add a custom field to the editor, which the extension renders itself.
 	 *
 	 * @param options - The field to add
 	 * @return The added field
 	 */
-	addField(options: AddFieldOptions): AddFieldResult
+	addCustomField(options: AddCustomFieldOptions): AddCustomFieldResult
 
 	/**
 	 * Register a callback that is called when the view of the editor changes.
